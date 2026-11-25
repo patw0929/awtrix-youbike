@@ -1,0 +1,6 @@
+*.bak_*
+__pycache__/
+.DS_Store
+.claude/
+CLAUDE.local.md
+優化計畫/

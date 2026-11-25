@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YouBike 站點選擇器｜AWTRIX YouBike Stations TW</title>
+<style>
+  :root {
+    --yb: #ffef00; --yb-deep: #f5c400; --orange: #f08300; --ink: #333; --ink-2: #666; --line: #e6e6e6;
+    --bg: #f7f7f5; --card: #fff; --red: #e53935; --blue: #4a90e2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; color: var(--ink); background: var(--bg); }
+  header { background: var(--yb); padding: 20px 20px 18px; }
+  header .wrap { max-width: 960px; margin: 0 auto; display: flex; gap: 14px; align-items: center; }
+  header svg { flex: none; }
+  h1 { margin: 0; font-size: 22px; letter-spacing: .02em; }
+  header p { margin: 2px 0 0; font-size: 13px; color: #555; }
+  main { max-width: 960px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+  section { background: var(--card); border-radius: 14px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  h2 { margin: 0 0 12px; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+  h2 .n { width: 22px; height: 22px; border-radius: 50%; background: var(--yb); display: inline-grid; place-items: center; font-size: 13px; }
+  h2 small { font-weight: normal; color: var(--ink-2); font-size: 12px; }
+  .row { display: flex; gap: 8px; }
+  input[type=search], input[type=text] { flex: 1; min-width: 0; font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); }
+  input:focus { outline: none; border-color: var(--yb-deep); box-shadow: 0 0 0 3px rgba(255,239,0,.45); }
+  button { font: inherit; border: 0; border-radius: 10px; padding: 10px 14px; cursor: pointer; background: var(--ink); color: #fff; white-space: nowrap; }
+  button.yb { background: var(--yb); color: var(--ink); font-weight: 600; }
+  button.ghost { background: transparent; color: var(--ink-2); padding: 6px 8px; }
+  button.ghost:hover { color: var(--ink); background: #f0f0f0; }
+  button:disabled { opacity: .45; cursor: default; }
+  .status { font-size: 13px; color: var(--ink-2); margin: 10px 0 4px; min-height: 18px; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  .results li { display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+  .results li:last-child { border-bottom: 0; }
+  .results .name { font-weight: 600; }
+  .results .meta { font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+  .results .info { flex: 1; min-width: 0; }
+  .count { font-size: 12px; text-align: right; min-width: 64px; color: var(--ink-2); }
+  .count b { font-size: 18px; color: var(--ink); }
+  .count b.low { color: var(--orange); } .count b.zero { color: var(--red); }
+  .add { width: 34px; height: 34px; padding: 0; border-radius: 50%; background: var(--yb); color: var(--ink); font-size: 20px; line-height: 1; }
+  .added .add { background: #eee; color: #999; }
+  .picked li { padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .picked li:last-child { border-bottom: 0; }
+  .picked .top { display: flex; align-items: center; gap: 6px; }
+  .picked .no { font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .picked .warn { font-size: 12px; color: var(--orange); margin-top: 4px; }
+  a.map { color: var(--blue); text-decoration: none; white-space: nowrap; }
+  a.map:hover { text-decoration: underline; }
+  .empty { color: var(--ink-2); font-size: 14px; padding: 18px 0; text-align: center; }
+  canvas.led { display: block; width: 100%; max-width: 312px; margin: 8px 0 0; border-radius: 8px; background: #111; image-rendering: pixelated; }
+  canvas.led[hidden] { display: none; }
+  textarea { width: 100%; font: 13px ui-monospace, Menlo, monospace; padding: 10px; border: 1px solid var(--line); border-radius: 10px; resize: vertical; min-height: 64px; color: var(--ink); }
+  .out { grid-column: 1 / -1; }
+  .steps { margin: 10px 0 0; padding-left: 20px; font-size: 14px; line-height: 1.7; color: var(--ink-2); }
+  .len { font-size: 12px; color: var(--ink-2); }
+  .len.over { color: var(--red); }
+  footer { max-width: 960px; margin: 0 auto; padding: 0 20px 30px; font-size: 12px; color: #999; line-height: 1.6; }
+  .send { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line); }
+  .send p { font-size: 13px; color: var(--ink-2); margin: 0 0 8px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <svg width="46" height="30" viewBox="0 0 11 7" aria-hidden="true" shape-rendering="crispEdges" fill="#333"><path d="M8 0h2v1H8zM2 1h2v1H2zM8 1h1v1H8zM3 2h5v1H3zM9 2h1v1H9zM1 3h2v1H1zM4 3h1v1H4zM7 3h3v1H7zM0 4h1v1H0zM3 4h2v1H3zM6 4h2v1H6zM10 4h1v1h-1zM0 5h1v1H0zM3 5h1v1H3zM7 5h1v1H7zM10 5h1v1h-1zM1 6h2v1H1zM8 6h2v1H8z"/></svg>
+    <div>
+      <h1>YouBike 站點選擇器</h1>
+      <p>為 AWTRIX 終端（如 Ulanzi TC002）的「YouBike Stations TW」app 挑選要輪播的站點 · Station picker for the AWTRIX app</p>
+    </div>
+  </div>
+</header>
+<main>
+  <section>
+    <h2><span class="n">1</span>找站點 <small>Find stations</small></h2>
+    <div class="row">
+      <input id="q" type="search" placeholder="站名、路名或行政區，例如 科技大樓" autocomplete="off" disabled>
+      <button id="near" class="yb" disabled>📍 附近</button>
+    </div>
+    <div class="status" id="status">正在下載全台站點清單…</div>
+    <ul class="results" id="results"></ul>
+  </section>
+  <section>
+    <h2><span class="n">2</span>已選站點 <small>最多 8 站，依序輪播</small></h2>
+    <ul class="picked" id="picked"></ul>
+    <canvas class="led" id="led" width="52" height="16" hidden></canvas>
+  </section>
+  <section class="out">
+    <h2><span class="n">3</span>貼到 AWTRIX 終端 <small>Paste into your AWTRIX</small></h2>
+    <textarea id="out" readonly placeholder="選好站點後，這裡會出現設定文字"></textarea>
+    <div class="row" style="justify-content:space-between;align-items:center;margin-top:8px">
+      <span class="len" id="len">0 / 256</span>
+      <button id="copy" class="yb" disabled>複製設定</button>
+    </div>
+    <ol class="steps">
+      <li>打開 AWTRIX 終端的網頁（瀏覽器輸入 AWTRIX 終端的 IP）→ Apps → <b>YouBike Stations TW</b> → 設定</li>
+      <li>把上面的文字貼進 <b>Stations 站點</b> 欄位，儲存</li>
+      <li>AWTRIX 終端會立刻抓一次資料；之後按旋鈕或中間鍵可以強制更新</li>
+    </ol>
+    <div class="send">
+      <p>或直接寫入 AWTRIX 終端（電腦和 AWTRIX 終端要在同一個網路；從 https 網址開這頁時，瀏覽器可能會擋，請改用複製貼上）</p>
+      <div class="row">
+        <input id="ip" type="text" placeholder="AWTRIX 終端 IP，例如 192.168.1.100" inputmode="decimal">
+        <button id="send" disabled>寫入 AWTRIX 終端</button>
+      </div>
+      <div class="status" id="sendStatus"></div>
+    </div>
+  </section>
+</main>
+<footer>
+  非官方工具，資料來自 YouBike 官網公開的站點清單與即時車況，與 YouBike 公司無關。站名點陣字：Fusion Pixel Font（TakWolf，SIL OFL 1.1）。<a href="https://github.com/patw0929/awtrix-youbike" style="color:inherit">原始碼與 app：GitHub</a><br>
+  Unofficial. Data from the public YouBike website. Not affiliated with YouBike.
+</footer>
+<script src="chars.js"></script>
+<script>
+const LIST_URL = "https://apis.youbike.com.tw/json/station-min-yb2.json";
+const LIVE_URL = "https://apis.youbike.com.tw/tw2/parkingInfo";
+const MAX = 8, MAXLEN = 256;
+const $ = (id) => document.getElementById(id);
+let stations = [], picked = [], here = null;
+const live = new Map();
+
+// ---- 點陣字 ----
+const glyphs = new Map();
+if (window.YB_FONT) {
+  const h = window.YB_FONT;
+  for (let i = 0; i < h.length; i += 18) {
+    const cp = parseInt(h.substr(i, 4), 16);
+    const rows = [];
+    for (let r = 0; r < 7; r++) rows.push(parseInt(h.substr(i + 4 + r * 2, 2), 16));
+    glyphs.set(cp, rows);
+  }
+}
+const canShow = (ch) => ch.codePointAt(0) < 0x80 || glyphs.has(ch.codePointAt(0));
+
+// 3x5 英數（近似 AWTRIX 的 small 字型）
+const SMALL = {"0":"7,5,5,5,7","1":"2,6,2,2,7","2":"7,1,7,4,7","3":"7,1,7,1,7","4":"5,5,7,1,1","5":"7,4,7,1,7","6":"7,4,7,5,7","7":"7,1,1,2,2","8":"7,5,7,5,7","9":"7,5,7,1,7","(":"1,2,2,2,1",")":"4,2,2,2,4","-":"0,0,7,0,0","#":"5,7,5,7,5",".":"0,0,0,0,2","P":"6,5,6,4,4"," ":"0,0,0,0,0"};
+const LARGE = {"0":"7,5,5,5,5,5,7","1":"2,6,2,2,2,2,7","2":"7,1,1,7,4,4,7","3":"7,1,1,7,1,1,7","4":"5,5,5,7,1,1,1","5":"7,4,4,7,1,1,7","6":"7,4,4,7,5,5,7","7":"7,1,1,2,2,2,2","8":"7,5,5,7,5,5,7","9":"7,5,5,7,1,1,7"};
+const BIKE = ["........##.", "..##....#..", "...#####.#.", ".##.#..###.", "#..##.##..#", "#..#...#..#", ".##.....##."];
+
+function drawLed(st) {
+  const c = $("led"), g = c.getContext("2d");
+  const W = 52, H = 16, S = 6;
+  c.width = W * S; c.height = H * S;
+  const px = new Array(W * H).fill(0);
+  const set = (x, y, col) => { if (x >= 0 && x < W && y >= 0 && y < H) px[y * W + x] = col; };
+  const pat = (rows, x, y, col, w = 3) => rows.split(",").forEach((r, j) => { for (let i = 0; i < w; i++) if (+r & (1 << (w - 1 - i))) set(x + i, y + j, col); });
+  const small = (s, x, y, col) => { for (const ch of s) { if (SMALL[ch]) pat(SMALL[ch], x, y, col); x += 4; } return x; };
+  const large = (s, x, y, col) => { for (const ch of s) { pat(LARGE[ch], x, y, col); x += 4; } return x; };
+  // 站名
+  let x = 0;
+  for (const ch of st.label) {
+    const cp = ch.codePointAt(0);
+    if (cp < 0x80) { x = small(ch.toUpperCase(), x, 1, "#fff"); continue; }
+    const rows = glyphs.get(cp) || [0x7e, 0x42, 0x42, 0x42, 0x42, 0x7e, 0];
+    rows.forEach((b, j) => { for (let i = 0; i < 8; i++) if (b & (0x80 >> i) && x + i < 50) set(x + i, j, "#fff"); });
+    x += 8; if (x >= 50) break;
+  }
+  BIKE.forEach((r, j) => [...r].forEach((ch, i) => ch === "#" && set(i, 9 + j, "#ffef00")));
+  const v = live.get(st.no);
+  if (v) {
+    const b = v.available_spaces, e = (v.available_spaces_detail || {}).eyb || 0;
+    let xx = large(String(b), 13, 9, b === 0 ? "#ff3030" : b < 3 ? "#ff8a00" : "#fff");
+    if (e) { pat("1,2,3,1,2", xx + 1, 10, "#ffef00", 2); small(String(e), xx + 4, 10, "#ffef00"); }
+    const d = String(v.empty_spaces), dx = 52 - d.length * 4 + 1;
+    small(d, dx, 10, "#8a8a8a"); small("P", dx - 5, 10, "#4a90e2");
+  }
+  g.fillStyle = "#111"; g.fillRect(0, 0, c.width, c.height);
+  for (let y = 0; y < H; y++) for (let x2 = 0; x2 < W; x2++) {
+    g.fillStyle = px[y * W + x2] || "#1e1e1e";
+    g.beginPath(); g.arc(x2 * S + S / 2, y * S + S / 2, S / 2 - 0.6, 0, 7); g.fill();
+  }
+  c.hidden = false;
+}
+
+// ---- 資料 ----
+async function loadList() {
+  try {
+    const r = await fetch(LIST_URL);
+    stations = (await r.json()).map((s) => ({
+      no: s.station_no, name: s.name_tw, dist: s.district_tw, addr: s.address_tw, en: s.name_en,
+      lat: +s.lat, lng: +s.lng, ok: s.status === 1,
+      key: (s.name_tw + s.district_tw + s.address_tw + s.name_en + s.station_no).toLowerCase(),
+    }));
+    $("status").textContent = `共 ${stations.length.toLocaleString()} 站。輸入關鍵字，或按「附近」用目前位置找。`;
+    $("q").disabled = $("near").disabled = false;
+    $("q").focus();
+  } catch (e) {
+    $("status").textContent = "站點清單下載失敗，請重新整理頁面。（" + e.message + "）";
+  }
+}
+
+async function fetchLive(nos) {
+  const need = nos.filter((n) => !live.has(n));
+  for (let i = 0; i < need.length; i += 20) {
+    try {
+      const r = await fetch(LIVE_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ station_no: need.slice(i, i + 20) }) });
+      const d = await r.json();
+      for (const s of d.retVal?.data || []) live.set(s.station_no, s);
+    } catch (e) { /* 即時車數只是參考，失敗就不顯示 */ }
+  }
+}
+
+function km(a, b) {
+  const R = 6371, t = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * t, dLng = (b.lng - a.lng) * t;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * t) * Math.cos(b.lat * t) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+function countHtml(no) {
+  const v = live.get(no);
+  if (!v) return "";
+  if (v.status !== 1) return `<span>暫停</span>`;
+  const b = v.available_spaces, cls = b === 0 ? "zero" : b < 3 ? "low" : "";
+  return `<b class="${cls}">${b}</b> 台<br>空位 ${v.empty_spaces}`;
+}
+
+const mapUrl = (s) => `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`;
+const mapLink = (s) => `<a class="map" href="${mapUrl(s)}" target="_blank" rel="noopener">地圖 ↗</a>`;
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+async function showResults(list, note) {
+  const ul = $("results");
+  $("status").textContent = note;
+  const top = list.slice(0, 30);
+  const render = () => {
+    ul.innerHTML = top.map((s) => {
+      const on = picked.some((p) => p.no === s.no);
+      const d = here ? ` · ${km(here, s) < 1 ? Math.round(km(here, s) * 1000) + " 公尺" : km(here, s).toFixed(1) + " 公里"}` : "";
+      return `<li class="${on ? "added" : ""}">
+        <div class="info"><div class="name">${esc(s.name)}${s.ok ? "" : "（暫停）"}</div>
+        <div class="meta">${esc(s.dist)} · ${esc(s.addr)}${d} · ${mapLink(s)}</div></div>
+        <div class="count">${countHtml(s.no)}</div>
+        <button class="add" data-no="${s.no}" ${on || picked.length >= MAX ? "disabled" : ""} title="加入">${on ? "✓" : "+"}</button></li>`;
+    }).join("") || `<li class="empty">找不到符合的站點</li>`;
+  };
+  render();
+  await fetchLive(top.map((s) => s.no));
+  render();
+}
+
+function search() {
+  const words = $("q").value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length) { $("results").innerHTML = ""; $("status").textContent = ""; return; }
+  let hits = stations.filter((s) => words.every((w) => s.key.includes(w)));
+  if (here) hits.sort((a, b) => km(here, a) - km(here, b));
+  showResults(hits, `找到 ${hits.length} 站${hits.length > 30 ? "，只列前 30 站" : ""}`);
+}
+
+function near() {
+  if (!navigator.geolocation) { $("status").textContent = "這個瀏覽器不支援定位。"; return; }
+  $("status").textContent = "定位中…";
+  navigator.geolocation.getCurrentPosition((p) => {
+    here = { lat: p.coords.latitude, lng: p.coords.longitude };
+    const list = [...stations].sort((a, b) => km(here, a) - km(here, b));
+    $("q").value = "";
+    showResults(list, "離你最近的 30 站");
+  }, (e) => { $("status").textContent = "無法取得位置：" + e.message; }, { enableHighAccuracy: true, timeout: 10000 });
+}
+
+// ---- 已選 ----
+function badChars(label) { return [...new Set([...label].filter((c) => !canShow(c)))]; }
+
+function renderPicked() {
+  const ul = $("picked");
+  if (!picked.length) {
+    ul.innerHTML = `<li class="empty">從左邊按「+」加入站點</li>`;
+    $("led").hidden = true;
+  } else {
+    ul.innerHTML = picked.map((p, i) => {
+      const bad = badChars(p.label);
+      return `<li>
+        <div class="top">
+          <input type="text" value="${esc(p.label)}" data-i="${i}" aria-label="顯示名稱">
+          <button class="ghost" data-up="${i}" ${i ? "" : "disabled"} title="上移">↑</button>
+          <button class="ghost" data-down="${i}" ${i < picked.length - 1 ? "" : "disabled"} title="下移">↓</button>
+          <button class="ghost" data-del="${i}" title="移除">✕</button>
+        </div>
+        <div class="no">${p.no} · ${esc(p.name)} · ${mapLink(p)}</div>
+        ${bad.length ? `<div class="warn">AWTRIX 終端沒有這些字，會顯示成方框：${esc(bad.join(" "))}</div>` : ""}
+      </li>`;
+    }).join("");
+    drawLed(picked[0]);
+  }
+  const s = picked.map((p) => `${p.no}:${p.label.replace(/[,:，：]/g, " ").trim()}`).join(",");
+  $("out").value = s;
+  const n = [...s].length;
+  $("len").textContent = `${n} / ${MAXLEN}`;
+  $("len").classList.toggle("over", n > MAXLEN);
+  $("copy").disabled = $("send").disabled = !picked.length || n > MAXLEN;
+}
+
+$("results").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-no]");
+  if (!b || picked.length >= MAX) return;
+  const s = stations.find((x) => x.no === b.dataset.no);
+  picked.push({ no: s.no, name: s.name, label: s.name, lat: s.lat, lng: s.lng });
+  renderPicked();
+  const li = b.closest("li"); li.classList.add("added"); b.textContent = "✓"; b.disabled = true;
+  if (picked.length >= MAX) document.querySelectorAll(".results .add").forEach((x) => (x.disabled = true));
+});
+
+$("picked").addEventListener("click", (e) => {
+  const t = e.target.closest("button"); if (!t) return;
+  const d = t.dataset;
+  if (d.del) picked.splice(+d.del, 1);
+  if (d.up) [picked[+d.up - 1], picked[+d.up]] = [picked[+d.up], picked[+d.up - 1]];
+  if (d.down) [picked[+d.down + 1], picked[+d.down]] = [picked[+d.down], picked[+d.down + 1]];
+  renderPicked(); search();
+});
+
+$("picked").addEventListener("input", (e) => {
+  const i = e.target.dataset.i; if (i == null) return;
+  picked[+i].label = e.target.value;
+  const keep = document.activeElement, pos = keep.selectionStart;
+  renderPicked();
+  const again = document.querySelector(`#picked input[data-i="${i}"]`);
+  again.focus(); again.setSelectionRange(pos, pos);
+});
+
+$("copy").addEventListener("click", async () => {
+  await navigator.clipboard.writeText($("out").value);
+  $("copy").textContent = "已複製 ✓";
+  setTimeout(() => ($("copy").textContent = "複製設定"), 1600);
+});
+
+$("send").addEventListener("click", async () => {
+  const ip = $("ip").value.trim();
+  const st = $("sendStatus");
+  if (!/^[\w.-]+(:\d+)?$/.test(ip)) { st.textContent = "請輸入 AWTRIX 終端的 IP。"; return; }
+  localStorage.setItem("yb-ip", ip);
+  st.textContent = "尋找 AWTRIX 終端上的 app…";
+  try {
+    const apps = await (await fetch(`http://${ip}/api/v1/apps`)).json();
+    const app = apps.find((a) => /^YouBike Stations/i.test(a.meta?.name || "")) || apps.find((a) => /youbike/i.test(a.name));
+    if (!app) { st.textContent = "AWTRIX 終端上還沒有安裝 YouBike Stations TW app。"; return; }
+    const r = await fetch(`http://${ip}/api/v1/apps/${encodeURIComponent(app.name)}/config`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ st: $("out").value }),
+    });
+    st.textContent = r.ok ? `已寫入 ${app.name}，AWTRIX 終端會立刻更新。` : `AWTRIX 終端回應錯誤 HTTP ${r.status}`;
+  } catch (e) {
+    st.textContent = "連不到 AWTRIX 終端（瀏覽器可能擋了 https 頁面連 http），請改用「複製設定」貼到 AWTRIX 終端網頁。";
+  }
+});
+
+let timer;
+$("q").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(search, 200); });
+$("near").addEventListener("click", near);
+$("ip").value = localStorage.getItem("yb-ip") || "";
+renderPicked();
+loadList();
+</script>
+</body>
+</html>
