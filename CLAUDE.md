@@ -19,8 +19,9 @@ AWTRIX（awtrix-ng 韌體，TC002 52×16）YouBike 站點監看 app＋選站網�
 ## 現況（2026-11-25）
 
 - 2.0.0 已在時鐘實測：中文站名、長名捲動、電輔數、暫停營運、輪播、旋鈕與中間鍵強制更新
+- 已上架 AWTRIX Hub：https://awtrix.de/script/KtaA0XnhWNap（Miscellaneous，只支援 52×16）
 - 選站網頁：搜尋、附近、即時車數、Google Maps 連結、LED 預覽、複製／直接寫入
 
 ## 待辦
 
-- 上架 awtrix.de：先讀 https://blueforcer.github.io/awtrix-ng/tc002/guides/scripting/sharing/ 的規範
+- 無。改版時：bump `@version`，重 build，再到 Hub 頁的 Edit script 更新程式碼

@@ -4,7 +4,7 @@
 
 Glance at your clock before you head out and see whether the YouBike stations near you have bikes. A Berry app for AWTRIX clocks running the [awtrix-ng](https://blueforcer.github.io/awtrix-ng/) firmware (52×16, e.g. Ulanzi TC002). The clock asks YouBike directly, so no server or proxy is needed, and station names are shown in Chinese with a built-in 8 px pixel font.
 
-**Pick your stations: https://patw0929.github.io/awtrix-youbike/**
+**Install: https://awtrix.de/script/KtaA0XnhWNap · Pick your stations: https://patw0929.github.io/awtrix-youbike/**
 
 ![Two stations on a TC002](assets/preview.svg)
 
@@ -28,7 +28,7 @@ Unofficial. Not affiliated with YouBike Co., Ltd.
 
 ## Setup
 
-1. Install **YouBike Stations TW** on the clock (from the AWTRIX script hub, or with the command below)
+1. Install **[YouBike Stations TW](https://awtrix.de/script/KtaA0XnhWNap)** from the AWTRIX Hub (press **Send to AWTRIX** on that page), or with the command below
 2. Open the [station picker](https://patw0929.github.io/awtrix-youbike/), search by name or tap **📍 附近** (nearby), and add up to 8 stations. You can rename and reorder them, and open each one on Google Maps
 3. Copy the result and paste it into the app's **Stations 站點** setting in the clock's web page. On the same network you can also press **寫入 AWTRIX 終端** to write it straight to the clock
 

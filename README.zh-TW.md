@@ -4,7 +4,7 @@
 
 出門前瞄一眼時鐘，就知道附近幾個 YouBike 站有沒有車可借。給 [awtrix-ng](https://blueforcer.github.io/awtrix-ng/) 韌體（52×16，例如 Ulanzi TC002）的 Berry app：時鐘直接向 YouBike 官網查詢，不需要中繼伺服器；中文站名用內嵌的 8px 點陣字顯示。
 
-**選站網頁：https://patw0929.github.io/awtrix-youbike/**
+**安裝：https://awtrix.de/script/KtaA0XnhWNap · 選站網頁：https://patw0929.github.io/awtrix-youbike/**
 
 ![TC002 上的兩個站](assets/preview.svg)
 
@@ -28,7 +28,7 @@
 
 ## 設定
 
-1. 在 AWTRIX 終端安裝 **YouBike Stations TW**（從 AWTRIX script hub，或用下方指令）
+1. 從 AWTRIX Hub 安裝 **[YouBike Stations TW](https://awtrix.de/script/KtaA0XnhWNap)**（在該頁按 **Send to AWTRIX**），或用下方指令
 2. 打開[選站網頁](https://patw0929.github.io/awtrix-youbike/)：輸入站名或按「📍 附近」→ 按＋加入（最多 8 站，可改顯示名稱、排序，也能開 Google Maps 確認位置）
 3. 複製設定，貼到 AWTRIX 終端網頁裡這個 app 的 **Stations 站點** 欄位。同網路下也可以直接按「寫入 AWTRIX 終端」
 
